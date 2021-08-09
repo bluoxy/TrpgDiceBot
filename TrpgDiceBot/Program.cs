@@ -1,8 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,11 +16,13 @@ namespace TrpgDiceBot
     public class Program
     {
         private readonly DiscordSocketClient _client;
-        private readonly static Random _random = new Random();
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
+        private static readonly IConfigurationRoot _configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(path: "appsettings.json")
+                .Build();
         public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
-
         public Program()
         {
             _client = new DiscordSocketClient();
@@ -32,11 +36,8 @@ namespace TrpgDiceBot
         public async Task MainAsync()
         {
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
-
-            var token = "ODc0MjI5NzQ5NzQyOTcyOTY5.YRD75g.72FNNNr7B8tCOacrDd3tpDrmC5s";
-            await _client.LoginAsync(TokenType.Bot, token);
+            await _client.LoginAsync(TokenType.Bot, _configuration["token"]);
             await _client.StartAsync();
-
             await Task.Delay(Timeout.Infinite);
         }
 
