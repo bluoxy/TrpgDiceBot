@@ -10,8 +10,9 @@ namespace TrpgDiceBot
     public class DiceRollCommand : INoPrefixCommand
     {
         private readonly static Random _random = new Random();
-        public int RollCount { get; } = 1;
+        public int DiceCount { get; } = 1;
         public int SidedCount { get; } = 6;
+        public int RollCount { get; } = 1;
 
         public IMessage Message { get; }
 
@@ -20,55 +21,42 @@ namespace TrpgDiceBot
             Message = message;
         }
 
-        public DiceRollCommand(IMessage message, int rollCount, int sidedCount = 6)
+        public DiceRollCommand(IMessage message, int diceCount, int sidedCount = 6, int rollCount = 1)
         {
             Message = message;
-            RollCount = rollCount;
+            DiceCount = diceCount;
             SidedCount = sidedCount;
-        }
-
-        public DiceRollCommand(IMessage message, string content)
-        {
-            Message = message;
-            if (content.EndsWith('d'))
-            {
-                if (int.TryParse(content.Substring(0, content.Length - 1), out var rollCount))
-                {
-                    RollCount = rollCount;
-                }
-            }
-            else if (content.Contains('d'))
-            {
-                var splits = content.Split('d');
-                if (splits.Count() == 2 && splits.All(x => int.TryParse(x, out var _)))
-                {
-                    RollCount = int.Parse(splits[0]);
-                    SidedCount = int.Parse(splits[1]);
-                }
-            }
+            RollCount = rollCount;
         }
 
         private IEnumerable<int> DiceRoll()
         {
-            return Enumerable.Range(0, RollCount).Select(x => _random.Next(1, SidedCount));
+            return Enumerable.Range(0, DiceCount).Select(x => _random.Next(1, SidedCount));
         }
 
         private string CreateDiceRollResultMessage()
         {
+            var results = DiceRoll().ToList();
+            return DiceCount == 1 ?
+                $"({DiceCount}d{SidedCount}) → {results.Sum()}" :
+                $"({DiceCount}d{SidedCount}) → {results.Sum()}[{string.Join(",", results)}] → {results.Sum()}";
+
+        }
+        private string CreateDiceRollsResultMessage()
+        {
             try
             {
-                var results = DiceRoll();
                 var resultMessage = RollCount == 1 ?
-                    $"({RollCount}d{SidedCount}) → {results.Sum()}" :
-                    $"({RollCount}d{SidedCount}) → {results.Sum()}[{string.Join(",", results)}] → {results.Sum()}";
-                if(resultMessage.Length >= 2000)
+                    CreateDiceRollResultMessage() :
+                    string.Join(Environment.NewLine, Enumerable.Range(1, RollCount).Select(x => $"{x}{CreateDiceRollResultMessage()}"));
+                if (resultMessage.Length >= 2000)
                 {
                     return "ロール回数を減らしてください";
                 }
 
                 return resultMessage;
             }
-            catch(OverflowException)
+            catch (OverflowException)
             {
                 return "ロール回数を減らしてください";
             }
@@ -76,7 +64,7 @@ namespace TrpgDiceBot
 
         public async Task Execute()
         {
-            await Message.Channel.SendMessageAsync(CreateDiceRollResultMessage());
+            await Message.Channel.SendMessageAsync(CreateDiceRollsResultMessage());
         }
     }
 }

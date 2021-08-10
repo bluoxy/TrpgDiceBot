@@ -23,6 +23,7 @@ namespace TrpgDiceBot
                 .AddJsonFile(path: "appsettings.json")
                 .Build();
         public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
+
         public Program()
         {
             _client = new DiscordSocketClient();
