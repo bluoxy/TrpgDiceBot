@@ -31,7 +31,7 @@ namespace TrpgDiceBot
 
         private IEnumerable<int> DiceRoll()
         {
-            return Enumerable.Range(0, DiceCount).Select(x => _random.Next(1, SidedCount));
+            return Enumerable.Range(0, DiceCount).Select(x => _random.Next(1, SidedCount + 1));
         }
 
         private string CreateDiceRollResultMessage()
