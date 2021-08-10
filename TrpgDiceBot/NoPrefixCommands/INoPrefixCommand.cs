@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrpgDiceBot
+namespace TrpgDiceBot.NoPrefixCommands
 {
     public interface INoPrefixCommand
     {
