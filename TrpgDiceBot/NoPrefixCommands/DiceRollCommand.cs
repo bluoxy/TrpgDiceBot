@@ -30,16 +30,10 @@ namespace TrpgDiceBot.NoPrefixCommands
         public void InitializeDiceRolls(string content)
         {
             var noPrefixCommand = content.Split(new char[] { ' ', '　' }, StringSplitOptions.RemoveEmptyEntries)[0];
-
-            if (noPrefixCommand[1..].Count(x => x == 'd') == 0)
-            {
-                return;
-            }
-
             var diceRolls = noPrefixCommand
                 .Split(new char[] { '+', '-' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => new DiceRoll(x));
-            if (!diceRolls.All(x => x.IsValid) || !diceRolls.Any())
+            if (!diceRolls.All(x => x.IsValid) || !diceRolls.Any() || (diceRolls.Count() == 1 && diceRolls.Single().IsNaturalValue))
             {
                 return;
             }
