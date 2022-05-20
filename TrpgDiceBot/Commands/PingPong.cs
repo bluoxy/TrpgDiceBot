@@ -12,7 +12,7 @@ namespace TrpgDiceBot.Commands
     public class PingPong : ModuleBase
     {
         /// <summary>
-        ///     pingの発言があった場合、pongを返します
+        /// pingの発言があった場合、pongを返します
         /// </summary>
         /// <returns></returns>
         [Command("ping")]
